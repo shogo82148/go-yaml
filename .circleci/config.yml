@@ -6,7 +6,6 @@ orbs:
 jobs:
   test:
     working_directory: /go/src/github.com/goccy/go-yaml
-  test:
     parameters:
       go-version:
         type: string
