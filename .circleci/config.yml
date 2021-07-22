@@ -1,11 +1,18 @@
-version: 2
+version: 2.1
+
+orbs:
+  go: circleci/go@1.7.0
+
 jobs:
   test:
     working_directory: /go/src/github.com/goccy/go-yaml
-    docker:
-    - image: circleci/golang:1.15
-      environment:
-        GO111MODULE: "on"
+  test:
+    parameters:
+      go-version:
+        type: string
+    executor:
+      name: go/default
+      tag: << parameters.go-version >>
     steps:
       - checkout
       - run:
@@ -13,10 +20,9 @@ jobs:
           command: |
             git remote add goccy https://github.com/goccy/go-yaml.git
             git pull goccy master
-      - run:
-          name: Download modules
-          command: |
-            go mod download
+      - go/load-cache
+      - go/mod-download
+      - go/save-cache
       - run:
           name: Run unit tests and measure coverage
           command: |
@@ -26,4 +32,9 @@ workflows:
   version: 2
   test:
     jobs:
-      - test
+      - test:
+          matrix:
+            parameters:
+              go-version:
+                - '1.16'
+                - '1.15'
